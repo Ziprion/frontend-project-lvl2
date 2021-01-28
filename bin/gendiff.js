@@ -10,50 +10,56 @@ program
   .arguments('<filepath1> <filepath2>')
   .option('-f, --format [type]', 'output format')
   .action((filepath1, filepath2) => {
-    const path1 = filepath1;
-    const path2 = filepath2;
-    const dataPath1 = fs.readFileSync(path1);
-    const dataPath2 = fs.readFileSync(path2);
-    const file1 = JSON.parse(dataPath1);
-    const file2 = JSON.parse(dataPath2);
-    const keys1 = _.keysIn(file1);
-    const keys2 = _.keysIn(file2);
-    const asd = [];
-    keys1.filter((item) => {
-      if (!_.has(file2, item)) {
-        asd.push(`${item} ${file1[item]}- `);
+    const pathOfFileOne = filepath1;
+    const pathOfFileTwo = filepath2;
+    const dataOfFileOne = fs.readFileSync(pathOfFileOne);
+    const dataOfFileTwo = fs.readFileSync(pathOfFileTwo);
+    const fileOne = JSON.parse(dataOfFileOne);
+    const fileTwo = JSON.parse(dataOfFileTwo);
+    const keysOfFileOne = _.keysIn(fileOne);
+    const keysOfFileTwo = _.keysIn(fileTwo);
+    const result = [];
+    keysOfFileOne.forEach((key) => {
+      if (!_.has(fileTwo, key)) {
+        result.push(`${key} ${fileOne[key]}- `);
       }
     });
-    keys2.filter((item) => {
-      if (!_.has(file1, item)) {
-        asd.push(`${item} ${file2[item]}+ `);
+    keysOfFileTwo.forEach((key) => {
+      if (!_.has(fileOne, key)) {
+        result.push(`${key} ${fileTwo[key]}+ `);
       }
     });
-    keys2.filter((item) => {
-      if (_.has(file1, item)) {
-        if (file1[item] === file2[item]) {
-          asd.push(`${item} ${file1[item]}  `);
+    keysOfFileTwo.forEach((key) => {
+      if (_.has(fileOne, key)) {
+        if (fileOne[key] === fileTwo[key]) {
+          result.push(`${key} ${fileOne[key]}  `);
         } else {
-          asd.push([`${item} ${file1[item]}- `, `${item} ${file2[item]}+ `]);
+          result.push([`${key} ${fileOne[key]}- `, `${key} ${fileTwo[key]}+ `]);
         }
-      };
+      }
     });
-    const qwe = (array) => {
-      const newArray = array;
-      const newnewnew = newArray.map((item) => {
-        if (_.isArray(item)) {return qwe(item)} else {const string = item.slice(item.length - 2, item.length);
-          const newString = item.slice(0, item.length - 2);
-          const otherString = string + newString;
-          return otherString;}
+    const handlerToFormat = (array) => {
+      const ourArray = array;
+      const newResult = ourArray.map((item) => {
+        if (_.isArray(item)) {
+          return handlerToFormat(item);
+        }
+        const preString = item.slice(item.length - 2, item.length);
+        const mainString = item.slice(0, item.length - 2);
+        const newString = preString + mainString;
+        return newString.trim();
       });
-      return newnewnew;
-    }
-    const newNew = qwe(asd.sort());
-   const h = newNew.map((item) => _.isArray(item) ? item.map((item) => item.trim()) : item.trim());
-   const q = h.join(',');
-   console.log('{');
-   q.split(',').map((item) => console.log(item));
-   console.log('}');
-   return q;
+      return newResult;
+    };
+    const sortedFormatResult = handlerToFormat(result.sort());
+    const stringResult = sortedFormatResult.join(',');
+    const handlerToOutput = (str) => {
+      const string = str;
+      const preStr = '{,';
+      const postStr = ',{';
+      const strResult = preStr + string + postStr;
+      return strResult.split(',').map((item) => console.log(item));
+    };
+    return stringResult;
   });
 program.parse(process.argv);
