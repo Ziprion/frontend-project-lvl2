@@ -7,16 +7,15 @@ export default function genDiff(filepath1, filepath2) {
   const keysOfFileOne = _.keysIn(fileOne);
   const keysOfFileTwo = _.keysIn(fileTwo);
   const result = [];
-  keysOfFileOne.forEach((key) => {
-    if (!_.has(fileTwo, key)) {
-      result.push(`${key}: ${fileOne[key]}  - `);
-    }
-  });
-  keysOfFileTwo.forEach((key) => {
-    if (!_.has(fileOne, key)) {
-      result.push(`${key}: ${fileTwo[key]}  + `);
-    }
-  });
+  const addDifKeys = (arrayOfKeys, file, anotherFile, mark) => {
+    arrayOfKeys.forEach((key) => {
+      if (!_.has(anotherFile, key)) {
+        result.push(`${key}: ${file[key]}  ${mark} `);
+      }
+    });
+  };
+  addDifKeys(keysOfFileOne, fileOne, fileTwo, '-');
+  addDifKeys(keysOfFileTwo, fileTwo, fileOne, '+');
   keysOfFileTwo.forEach((key) => {
     if (_.has(fileOne, key)) {
       if (fileOne[key] === fileTwo[key]) {
