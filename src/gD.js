@@ -4,19 +4,18 @@ import _ from 'lodash';
 export default function genDiff(filepath1, filepath2) {
   const fileOne = JSON.parse(fs.readFileSync(filepath1));
   const fileTwo = JSON.parse(fs.readFileSync(filepath2));
-  const keysOfFileOne = _.keysIn(fileOne);
-  const keysOfFileTwo = _.keysIn(fileTwo);
   const result = [];
-  const addDifKeys = (arrayOfKeys, file, anotherFile, mark) => {
+  const addDifKeys = (file, anotherFile, mark) => {
+    const arrayOfKeys = _.keysIn(file);
     arrayOfKeys.forEach((key) => {
       if (!_.has(anotherFile, key)) {
         result.push(`${key}: ${file[key]}  ${mark} `);
       }
     });
   };
-  addDifKeys(keysOfFileOne, fileOne, fileTwo, '-');
-  addDifKeys(keysOfFileTwo, fileTwo, fileOne, '+');
-  keysOfFileTwo.forEach((key) => {
+  addDifKeys(fileOne, fileTwo, '-');
+  addDifKeys(fileTwo, fileOne, '+');
+  _.keysIn(fileTwo).forEach((key) => {
     if (_.has(fileOne, key)) {
       if (fileOne[key] === fileTwo[key]) {
         result.push(`${key}: ${fileOne[key]}    `);
