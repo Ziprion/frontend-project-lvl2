@@ -1,4 +1,4 @@
-name: Linter-check
+name: linter-check
 
 on:
   - push
@@ -13,5 +13,5 @@ jobs:
     
       - name: Run linter
         run: |
-          npm install
+          make install
           make lint
