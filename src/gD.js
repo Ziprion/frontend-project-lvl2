@@ -1,5 +1,5 @@
-import fs from 'fs';
 import _ from 'lodash';
+import parser from './parsers.js';
 
 const addDifKeys = (file, anotherFile, mark, toArray) => {
   const arrayOfKeys = _.keysIn(file);
@@ -22,8 +22,8 @@ const handlerToFormat = (array) => {
   return newResult;
 };
 export default function genDiff(filepath1, filepath2) {
-  const fileOne = JSON.parse(fs.readFileSync(filepath1));
-  const fileTwo = JSON.parse(fs.readFileSync(filepath2));
+  const fileOne = parser(filepath1);
+  const fileTwo = parser(filepath2);
   const result = [];
   addDifKeys(fileOne, fileTwo, '-', result);
   addDifKeys(fileTwo, fileOne, '+', result);
