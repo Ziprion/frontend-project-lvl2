@@ -2,12 +2,8 @@ import fs from 'fs';
 import _ from 'lodash';
 
 export default function genDiff(filepath1, filepath2) {
-  const pathOfFileOne = filepath1;
-  const pathOfFileTwo = filepath2;
-  const dataOfFileOne = fs.readFileSync(pathOfFileOne);
-  const dataOfFileTwo = fs.readFileSync(pathOfFileTwo);
-  const fileOne = JSON.parse(dataOfFileOne);
-  const fileTwo = JSON.parse(dataOfFileTwo);
+  const fileOne = JSON.parse(fs.readFileSync(filepath1));
+  const fileTwo = JSON.parse(fs.readFileSync(filepath2));
   const keysOfFileOne = _.keysIn(fileOne);
   const keysOfFileTwo = _.keysIn(fileTwo);
   const result = [];
@@ -31,8 +27,7 @@ export default function genDiff(filepath1, filepath2) {
     }
   });
   const handlerToFormat = (array) => {
-    const ourArray = array;
-    const newResult = ourArray.map((item) => {
+    const newResult = array.map((item) => {
       if (_.isArray(item)) {
         return handlerToFormat(item);
       }
@@ -43,10 +38,6 @@ export default function genDiff(filepath1, filepath2) {
     });
     return newResult;
   };
-  const sortedFormatResult = handlerToFormat(result.sort()).flat();
-  const startStringResult = '\r\n{\r\n';
-  const endStringResult = '\r\n}\r\n';
-  const mainStringResult = sortedFormatResult.join('\r\n');
-  const stringResult = startStringResult + mainStringResult + endStringResult;
-  return stringResult;
+  const sortedFormatResult = handlerToFormat(result.sort()).flat().join('\r\n');
+  return `\r\n{\r\n${sortedFormatResult}\r\n}\r\n`;
 }
