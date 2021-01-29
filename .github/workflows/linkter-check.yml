@@ -13,5 +13,5 @@ jobs:
     
       - name: Run linter
         run: |
-          npm install,
+          npm install
           make lint
