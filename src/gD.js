@@ -44,7 +44,7 @@ export default function genDiff(filepath1, filepath2) {
     return newResult;
   };
   const sortedFormatResult = handlerToFormat(result.sort()).flat();
-  const startStringResult = '{\r\n';
+  const startStringResult = '\r\n{\r\n';
   const endStringResult = '\r\n}\r\n';
   const mainStringResult = sortedFormatResult.join('\r\n');
   const stringResult = startStringResult + mainStringResult + endStringResult;
