@@ -1,41 +1,63 @@
 import _ from 'lodash';
 import parser from './parsers.js';
 
-const addDifKeys = (file, anotherFile, mark, toArray) => {
-  const arrayOfKeys = _.keysIn(file);
-  arrayOfKeys.forEach((key) => {
-    if (!_.has(anotherFile, key)) {
-      toArray.push(`${key}: ${file[key]}  ${mark} `);
-    }
-  });
-};
-const handlerToFormat = (array) => {
-  const newResult = array.map((item) => {
-    if (_.isArray(item)) {
-      return handlerToFormat(item);
-    }
-    const preString = item.slice(item.length - 4, item.length);
-    const mainString = item.slice(0, item.length - 4);
-    const newString = preString + mainString;
-    return newString;
-  });
-  return newResult;
-};
 export default function genDiff(filepath1, filepath2) {
   const fileOne = parser(filepath1);
   const fileTwo = parser(filepath2);
-  const result = [];
-  addDifKeys(fileOne, fileTwo, '-', result);
-  addDifKeys(fileTwo, fileOne, '+', result);
-  _.keysIn(fileTwo).forEach((key) => {
-    if (_.has(fileOne, key)) {
-      if (fileOne[key] === fileTwo[key]) {
-        result.push(`${key}: ${fileOne[key]}    `);
-      } else {
-        result.push([`${key}: ${fileOne[key]}  - `, `${key}: ${fileTwo[key]}  + `]);
+  const diffObj = (objOne, objTwo, count) => {
+    const iterStr = '  ';
+    const iter = count;
+    const result = [];
+    const mainObj = { ...objOne, ...objTwo };
+    const keys = _.keys(mainObj).sort();
+    keys.forEach((key) => {
+      if (_.has(objOne, key) && !_.has(objTwo, key)) {
+        if (_.isObject(objOne[key])) {
+          result.push(`${iterStr.repeat(iter + 1)}- ${key}: {\r\n${diffObj(objOne[key], objOne[key], iter + 2)}\r\n${iterStr.repeat(iter + 2)}}`);
+        } else {
+          result.push(`${iterStr.repeat(iter + 1)}- ${key}: ${objOne[key]}`);
+        }
       }
-    }
-  });
-  const sortedFormatResult = handlerToFormat(result.sort()).flat().join('\r\n');
-  return `\r\n{\r\n${sortedFormatResult}\r\n}\r\n`;
+      if (!_.has(objOne, key) && _.has(objTwo, key)) {
+        if (_.isObject(objTwo[key])) {
+          result.push(`${iterStr.repeat(iter + 1)}+ ${key}: {\r\n${diffObj(objTwo[key], objTwo[key], iter + 2)}\r\n${iterStr.repeat(iter + 2)}}`);
+        } else {
+          result.push(`${iterStr.repeat(iter + 1)}+ ${key}: ${objTwo[key]}`);
+        }
+      }
+      if (_.has(objOne, key) && _.has(objTwo, key) && typeof objOne[key] !== typeof objTwo[key]) {
+        if (_.isObject(objOne[key])) {
+          result.push(`${iterStr.repeat(iter + 1)}- ${key}: {\r\n${diffObj(objOne[key], objOne[key], iter + 2)}\r\n${iterStr.repeat(iter + 2)}}`);
+        } else {
+          result.push(`${iterStr.repeat(iter + 1)}- ${key}: ${objOne[key]}`);
+        }
+        if (_.isObject(objTwo[key])) {
+          result.push(`${iterStr.repeat(iter + 1)}+ ${key}: {\r\n${diffObj(objTwo[key], objTwo[key], iter + 1)}\r\n${iterStr.repeat(iter)}}`);
+        } else {
+          result.push(`${iterStr.repeat(iter + 1)}+ ${key}: ${objTwo[key]}`);
+        }
+      }
+      if (_.has(objOne, key) && _.has(objTwo, key) && objOne[key] === objTwo[key]) {
+        if (_.isObject(objTwo[key])) {
+          result.push(`${iterStr.repeat(iter + 2)}${key}: {\r\n${diffObj(objOne[key], objTwo[key], iter + 2)}\r\n${iterStr.repeat(iter + 2)}}`);
+        } else {
+          result.push(`${iterStr.repeat(iter + 2)}${key}: ${objOne[key]}`);
+        }
+      }
+      if (_.has(objOne, key) && _.has(objTwo, key) && typeof objOne[key] === typeof objTwo[key]) {
+        if (objOne[key] !== objTwo[key]) {
+          if (_.isObject(objTwo[key])) {
+            result.push(`${iterStr.repeat(iter + 2)}${key}: {\r\n${diffObj(objOne[key], objTwo[key], iter + 2)}\r\n${iterStr.repeat(iter + 2)}}`);
+          } else {
+            result.push(`${iterStr.repeat(iter + 1)}- ${key}: ${objOne[key]}`);
+            result.push(`${iterStr.repeat(iter + 1)}+ ${key}: ${objTwo[key]}`);
+          }
+        }
+      }
+    });
+    return result.join('\r\n');
+  };
+
+  const asd = diffObj(fileOne, fileTwo, 0);
+  return `\r\n{\r\n${asd}\r\n}\r\n`;
 }
