@@ -1,47 +1,61 @@
 import _ from 'lodash';
 
 export default function diffObj(objOne, objTwo) {
-  const result = [];
   const mainObj = { ...objTwo, ...objOne };
   const asd = _.keys(mainObj);
   const keys = asd.sort();
-  keys.forEach((key) => {
-    const item = {};
-    item.name = key;
+  const results = keys.reduce((acc, key) => {
     if (_.has(objOne, key) && !_.has(objTwo, key)) {
-      item.status = 'deleted';
-      item.newValue = _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key])
-        : objOne[key];
-      item.value = _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key])
-        : objOne[key];
+      return [...acc, {
+        name: key,
+        status: 'deleted',
+        newValue: _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key]) : objOne[key],
+        value: _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key]) : objOne[key],
+      }];
     }
     if (!_.has(objOne, key) && _.has(objTwo, key)) {
-      item.status = 'added';
-      item.newValue = _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key];
-      item.value = _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key];
+      return [...acc, {
+        name: key,
+        status: 'added',
+        newValue: _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key],
+        value: _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key],
+      }];
     }
     if (_.has(objOne, key) && _.has(objTwo, key)) {
       if (typeof objOne[key] === 'object' || typeof objOne[key] === 'object') {
         if (typeof objOne[key] === typeof objTwo[key]) {
-          item.status = 'unchanged';
-          item.value = _.isObject(objOne[key]) ? diffObj(objOne[key], objTwo[key]) : objOne[key];
-          item.newValue = _.isObject(objTwo[key]) ? diffObj(objOne[key], objTwo[key]) : objTwo[key];
-        } else {
-          item.status = 'changed';
-          item.value = _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key]) : objOne[key];
-          item.newValue = _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key];
+          return [...acc, {
+            name: key,
+            status: 'unchanged',
+            value: _.isObject(objOne[key]) ? diffObj(objOne[key], objTwo[key]) : objOne[key],
+            newValue: _.isObject(objTwo[key]) ? diffObj(objOne[key], objTwo[key]) : objTwo[key],
+          }];
+        }
+        if (typeof objOne[key] !== typeof objTwo[key]) {
+          return [...acc, {
+            name: key,
+            status: 'changed',
+            value: _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key]) : objOne[key],
+            newValue: _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key],
+          }];
         }
       } else if (objOne[key] !== objTwo[key]) {
-        item.status = 'changed';
-        item.value = _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key]) : objOne[key];
-        item.newValue = _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key];
+        return [...acc, {
+          name: key,
+          status: 'changed',
+          value: _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key]) : objOne[key],
+          newValue: _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key],
+        }];
       } else {
-        item.status = 'unchanged';
-        item.value = _.isObject(objOne[key]) ? diffObj(objOne[key], objTwo[key]) : objOne[key];
-        item.newValue = _.isObject(objTwo[key]) ? diffObj(objOne[key], objTwo[key]) : objTwo[key];
+        return [...acc, {
+          name: key,
+          status: 'unchanged',
+          value: _.isObject(objOne[key]) ? diffObj(objOne[key], objTwo[key]) : objOne[key],
+          newValue: _.isObject(objTwo[key]) ? diffObj(objOne[key], objTwo[key]) : objTwo[key],
+        }];
       }
     }
-    return result.push(item);
-  });
-  return result;
+    return acc;
+  }, []);
+  return results;
 }
