@@ -1,63 +1,54 @@
 import _ from 'lodash';
 import parser from './parsers.js';
+import whichformat from '../formatters/index.js';
 
-export default function genDiff(filepath1, filepath2) {
+const diffObj = (objOne, objTwo) => {
+  const result = [];
+  const mainObj = { ...objOne, ...objTwo };
+  const keys = _.keys(mainObj).sort();
+  keys.forEach((key) => {
+    const item = {};
+    item.name = key;
+    if (_.has(objOne, key) && !_.has(objTwo, key)) {
+      item.status = 'deleted';
+      item.newValue = _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key])
+        : objOne[key];
+      item.value = _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key])
+        : objOne[key];
+    }
+    if (!_.has(objOne, key) && _.has(objTwo, key)) {
+      item.status = 'added';
+      item.newValue = _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key];
+      item.value = _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key];
+    }
+    if (_.has(objOne, key) && _.has(objTwo, key)) {
+      if (typeof objOne[key] === 'object' || typeof objOne[key] === 'object') {
+        if (typeof objOne[key] === typeof objTwo[key]) {
+          item.status = 'unchanged';
+          item.value = _.isObject(objOne[key]) ? diffObj(objOne[key], objTwo[key]) : objOne[key];
+          item.newValue = _.isObject(objTwo[key]) ? diffObj(objOne[key], objTwo[key]) : objTwo[key];
+        } else {
+          item.status = 'changed';
+          item.value = _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key]) : objOne[key];
+          item.newValue = _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key];
+        }
+      } else if (objOne[key] !== objTwo[key]) {
+        item.status = 'changed';
+        item.value = _.isObject(objOne[key]) ? diffObj(objOne[key], objOne[key]) : objOne[key];
+        item.newValue = _.isObject(objTwo[key]) ? diffObj(objTwo[key], objTwo[key]) : objTwo[key];
+      } else {
+        item.status = 'unchanged';
+        item.value = _.isObject(objOne[key]) ? diffObj(objOne[key], objTwo[key]) : objOne[key];
+        item.newValue = _.isObject(objTwo[key]) ? diffObj(objOne[key], objTwo[key]) : objTwo[key];
+      }
+    }
+    return result.push(item);
+  });
+  return result;
+};
+export default function genDiff(filepath1, filepath2, format = 'default') {
   const fileOne = parser(filepath1);
   const fileTwo = parser(filepath2);
-  const diffObj = (objOne, objTwo, count) => {
-    const iterStr = '  ';
-    const iter = count;
-    const result = [];
-    const mainObj = { ...objOne, ...objTwo };
-    const keys = _.keys(mainObj).sort();
-    keys.forEach((key) => {
-      if (_.has(objOne, key) && !_.has(objTwo, key)) {
-        if (_.isObject(objOne[key])) {
-          result.push(`${iterStr.repeat(iter + 1)}- ${key}: {\r\n${diffObj(objOne[key], objOne[key], iter + 2)}\r\n${iterStr.repeat(iter + 2)}}`);
-        } else {
-          result.push(`${iterStr.repeat(iter + 1)}- ${key}: ${objOne[key]}`);
-        }
-      }
-      if (!_.has(objOne, key) && _.has(objTwo, key)) {
-        if (_.isObject(objTwo[key])) {
-          result.push(`${iterStr.repeat(iter + 1)}+ ${key}: {\r\n${diffObj(objTwo[key], objTwo[key], iter + 2)}\r\n${iterStr.repeat(iter + 2)}}`);
-        } else {
-          result.push(`${iterStr.repeat(iter + 1)}+ ${key}: ${objTwo[key]}`);
-        }
-      }
-      if (_.has(objOne, key) && _.has(objTwo, key) && typeof objOne[key] !== typeof objTwo[key]) {
-        if (_.isObject(objOne[key])) {
-          result.push(`${iterStr.repeat(iter + 1)}- ${key}: {\r\n${diffObj(objOne[key], objOne[key], iter + 2)}\r\n${iterStr.repeat(iter + 2)}}`);
-        } else {
-          result.push(`${iterStr.repeat(iter + 1)}- ${key}: ${objOne[key]}`);
-        }
-        if (_.isObject(objTwo[key])) {
-          result.push(`${iterStr.repeat(iter + 1)}+ ${key}: {\r\n${diffObj(objTwo[key], objTwo[key], iter + 1)}\r\n${iterStr.repeat(iter)}}`);
-        } else {
-          result.push(`${iterStr.repeat(iter + 1)}+ ${key}: ${objTwo[key]}`);
-        }
-      }
-      if (_.has(objOne, key) && _.has(objTwo, key) && objOne[key] === objTwo[key]) {
-        if (_.isObject(objTwo[key])) {
-          result.push(`${iterStr.repeat(iter + 2)}${key}: {\r\n${diffObj(objOne[key], objTwo[key], iter + 2)}\r\n${iterStr.repeat(iter + 2)}}`);
-        } else {
-          result.push(`${iterStr.repeat(iter + 2)}${key}: ${objOne[key]}`);
-        }
-      }
-      if (_.has(objOne, key) && _.has(objTwo, key) && typeof objOne[key] === typeof objTwo[key]) {
-        if (objOne[key] !== objTwo[key]) {
-          if (_.isObject(objTwo[key])) {
-            result.push(`${iterStr.repeat(iter + 2)}${key}: {\r\n${diffObj(objOne[key], objTwo[key], iter + 2)}\r\n${iterStr.repeat(iter + 2)}}`);
-          } else {
-            result.push(`${iterStr.repeat(iter + 1)}- ${key}: ${objOne[key]}`);
-            result.push(`${iterStr.repeat(iter + 1)}+ ${key}: ${objTwo[key]}`);
-          }
-        }
-      }
-    });
-    return result.join('\r\n');
-  };
-
-  const asd = diffObj(fileOne, fileTwo, 0);
-  return `\r\n{\r\n${asd}\r\n}\r\n`;
+  const result = diffObj(fileOne, fileTwo);
+  return whichformat(result, format);
 }
