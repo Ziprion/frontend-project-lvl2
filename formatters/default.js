@@ -23,10 +23,10 @@ const formatter = (array, inner = 1) => {
     const resultValue = _.isObject(item.value) ? preStr + value + postStr : value;
     const resultNewValue = _.isObject(item.newValue) ? preStr + newValue + postStr : newValue;
     if (value === newValue) {
-      str += `${newTab}${status} ${item.name}: ${resultValue}\n`;
+      str += `${newTab}${status} ${item.name}: ${resultValue}\r`;
     } else {
-      str += `${newTab}- ${item.name}: ${resultValue}\n`;
-      str += `${newTab}+ ${item.name}: ${resultNewValue}\n`;
+      str += `${newTab}- ${item.name}: ${resultValue}\r`;
+      str += `${newTab}+ ${item.name}: ${resultNewValue}\r`;
     }
     return true;
   });

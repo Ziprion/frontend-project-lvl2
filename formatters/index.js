@@ -3,8 +3,7 @@ import formatPlain from './plain.js';
 
 function whichformat(prevResult, format) {
   if (format === 'plain') { return `\n${formatPlain(prevResult).join('')}`; }
-  if (format === 'default') { return `{\n${formatter(prevResult)}}`; }
   if (format === 'json') { return JSON.stringify(prevResult); }
-  return console.log('error');
+  return `{\n${formatter(prevResult)}}`;
 }
 export default whichformat;
