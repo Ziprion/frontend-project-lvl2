@@ -2,7 +2,7 @@ import _ from 'lodash';
 import parser from './parsers.js';
 import whichformat from '../formatters/index.js';
 
-const diffObj = (objOne, objTwo) => {
+export default function diffObj (objOne, objTwo) {
   const result = [];
   const mainObj = { ...objTwo, ...objOne };
   const asd = _.keys(mainObj);
@@ -47,9 +47,3 @@ const diffObj = (objOne, objTwo) => {
   });
   return result;
 };
-export default function genDiff(filepath1, filepath2, format = 'default') {
-  const fileOne = parser(filepath1);
-  const fileTwo = parser(filepath2);
-  const result = diffObj(fileOne, fileTwo);
-  return whichformat(result, format);
-}

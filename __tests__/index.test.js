@@ -1,4 +1,4 @@
-import genDiff from '../src/gD.js';
+import genDiff from '../index.js';
 
 const strPlain = `
 Property 'common.follow' was added with value: false
