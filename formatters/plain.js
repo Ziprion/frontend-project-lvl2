@@ -1,9 +1,8 @@
 import _ from 'lodash';
 
 export default function plain(arras) {
-  const res = [];
   function formatPlain(array, path = '') {
-    array.map((item) => {
+    return array.map((item) => {
       const newPath = path + item.name;
       const getValue = (asd) => {
         if (_.isObject(asd.value)) {
@@ -26,21 +25,22 @@ export default function plain(arras) {
       const value = getValue(item);
       const newValue = getNewValue(item);
       if (item.status === 'deleted') {
-        res.push(`Property '${newPath}' was removed`);
+        return `Property '${newPath}' was removed`;
       }
       if (item.status === 'added') {
-        res.push(`Property '${newPath}' was added with value: ${newValue}`);
+        return `Property '${newPath}' was added with value: ${newValue}`;
       }
       if (item.status === 'changed') {
-        res.push(`Property '${newPath}' was updated. From ${value} to ${newValue}`);
+        return `Property '${newPath}' was updated. From ${value} to ${newValue}`;
       }
-      if (_.isObject(item.newValue)) {
+      if (_.isObject(item.newValue) && item.status === 'unchanged') {
         const trigPath = '.';
         return formatPlain(item.newValue, newPath + trigPath);
       }
-      return true;
-    });
-    return res;
-  };
+      return undefined;
+    })
+      .filter((node) => node !== undefined)
+      .join('\n');
+  }
   return formatPlain(arras);
 }
