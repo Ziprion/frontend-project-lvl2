@@ -14,8 +14,7 @@ Property 'group2' was removed
 Property 'group3' was added with value: [complex value]
 `;
 
-const strStylish = `
-{
+const strStylish = `{
     common: {
       + follow: false
         setting1: Value 1
@@ -58,8 +57,7 @@ const strStylish = `
         }
         fee: 100500
     }
-}
-`;
+}`;
 test('genDiff JSON tree check', () => {
   expect(genDiff('./__fixtures__/file3.json', './__fixtures__/file4.json')).toEqual(strStylish);
 });
