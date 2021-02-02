@@ -20,8 +20,8 @@ const formatter = (array, inner = 1) => {
       : item.newValue;
     const preStr = '{\r\n';
     const postStr = `${newTab}  }`;
-    const resultValue = typeof item.value === 'object' ? preStr + value + postStr : value;
-    const resultNewValue = newValue;
+    const resultValue = _.isObject(item.value) ? preStr + value + postStr : value;
+    const resultNewValue = _.isObject(item.newValue) ? preStr + newValue + postStr : newValue;
     if (value === newValue) {
       str += `${newTab}${status} ${item.name}: ${resultValue}\r\n`;
     } else {
