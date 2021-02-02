@@ -1,4 +1,4 @@
-import _ from 'lodash';
+imprt _ from 'lodash';
 
 const formatter = (array, inner = 1) => {
   const tab = '  ';
