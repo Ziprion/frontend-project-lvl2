@@ -1,6 +1,5 @@
 import genDiff from '../src/gD.js';
 
-
 const strPlain = `
 Property 'common.follow' was added with value: false
 Property 'common.setting2' was removed
