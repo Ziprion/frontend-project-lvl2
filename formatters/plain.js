@@ -25,13 +25,13 @@ const formatPlain = (array, path = '') => {
     const value = getValue(item);
     const newValue = getNewValue(item);
     if (item.status === 'deleted') {
-      res.push(`Property '${newPath}' was removed\n`);
+      res.push(`Property '${newPath}' was removed`);
     }
     if (item.status === 'added') {
-      res.push(`Property '${newPath}' was added with value: ${newValue}\n`);
+      res.push(`Property '${newPath}' was added with value: ${newValue}`);
     }
     if (item.status === 'changed') {
-      res.push(`Property '${newPath}' was updated. From ${value} to ${newValue}\n`);
+      res.push(`Property '${newPath}' was updated. From ${value} to ${newValue}`);
     }
     if (_.isObject(item.newValue)) {
       const trigPath = '.';
