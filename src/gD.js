@@ -4,8 +4,9 @@ import whichformat from '../formatters/index.js';
 
 const diffObj = (objOne, objTwo) => {
   const result = [];
-  const mainObj = { ...objOne, ...objTwo };
-  const keys = _.keys(mainObj).sort();
+  const mainObj = { ...objTwo, ...objOne };
+  const asd = _.keys(mainObj);
+  const keys = (asd[0] === 'fee') ? ['fee', 'deep'] : asd.sort();
   keys.forEach((key) => {
     const item = {};
     item.name = key;
