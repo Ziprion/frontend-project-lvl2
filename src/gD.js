@@ -1,8 +1,6 @@
 import _ from 'lodash';
-import parser from './parsers.js';
-import whichformat from '../formatters/index.js';
 
-export default function diffObj (objOne, objTwo) {
+export default function diffObj(objOne, objTwo) {
   const result = [];
   const mainObj = { ...objTwo, ...objOne };
   const asd = _.keys(mainObj);
@@ -46,4 +44,4 @@ export default function diffObj (objOne, objTwo) {
     return result.push(item);
   });
   return result;
-};
+}
