@@ -3,7 +3,7 @@ import _ from 'lodash';
 export default function diffObj(objOne, objTwo) {
   const mainObj = { ...objTwo, ...objOne };
   const asd = _.keys(mainObj);
-  const keys = asd.sort();
+  const keys = _.sortBy(asd);
   const results = keys.reduce((acc, key) => {
     if (_.has(objOne, key) && !_.has(objTwo, key)) {
       return [...acc, {
