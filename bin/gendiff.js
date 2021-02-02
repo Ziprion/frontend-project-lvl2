@@ -10,6 +10,6 @@ program
   .option('-f, --format [type]', 'output format')
   .action((filepath1, filepath2) => {
     const result = genDiff(filepath1, filepath2, program.opts().format);
-    return console.log(result);
+    return console.log(result.replace('\r\n', '\n'));
   });
 program.parse(process.argv);
