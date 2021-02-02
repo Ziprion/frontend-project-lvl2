@@ -3,7 +3,7 @@ import _ from 'lodash';
 const formatter = (array, inner = 1) => {
   const tab = '  ';
   const newTab = tab.repeat(inner);
-  let str = '';
+  const str = [];
   array.map((item) => {
     function getStatus(asd) {
       if (asd.status === 'deleted') {
@@ -23,13 +23,13 @@ const formatter = (array, inner = 1) => {
     const resultValue = _.isObject(item.value) ? preStr + value + postStr : value;
     const resultNewValue = _.isObject(item.newValue) ? preStr + newValue + postStr : newValue;
     if (value === newValue) {
-      str += `${newTab}${status} ${item.name}: ${resultValue}\n`;
+      str.push(`${newTab}${status} ${item.name}: ${resultValue}\n`);
     } else {
-      str += `${newTab}- ${item.name}: ${resultValue}\n`;
-      str += `${newTab}+ ${item.name}: ${resultNewValue}\n`;
+      str.push(`${newTab}- ${item.name}: ${resultValue}\n`);
+      str.push(`${newTab}+ ${item.name}: ${resultNewValue}\n`);
     }
     return true;
   });
-  return str;
+  return str.join('');
 };
 export default formatter;

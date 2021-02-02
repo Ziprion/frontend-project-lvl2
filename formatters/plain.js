@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 export default function plain(arras) {
   const res = [];
   function formatPlain(array, path = '') {
